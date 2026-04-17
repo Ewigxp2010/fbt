@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# FBT Inventory & Fulfillment Benefit Simulator - Streamlit V8 Full
-# Full detailed inputs + Centered layout + EN/DE/ZH + English default
+# FBT Inventory & Fulfillment Benefit Simulator - Streamlit V9 Full
+# Full detailed inputs + Centered layout + EN/DE/ZH/NL + English default
 
 import io
 import textwrap
@@ -11,6 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import streamlit as st
+
 
 # =========================================================
 # 1. LANGUAGE PACK
@@ -386,7 +387,131 @@ LANG = {
         "pdf_exec_summary": "管理摘要",
         "default_client_name": "客户",
     },
+    "nl": {
+        "title": "FBT Voorraad- en Fulfillment Voordeel Simulator",
+        "subtitle": "Vergelijk FBT met het huidige fulfillmentmodel vanuit kosten- en winstperspectief.",
+        "basic_inputs": "1. Basisgegevens",
+        "fbt_inputs": "2. FBT-invoer",
+        "current_inputs": "3. Huidige oplossing",
+        "business_inputs": "4. Business-invoer",
+        "report_inputs": "Rapportgegevens",
+        "calculate": "Berekenen",
+        "reset": "Resetten",
+
+        "client_name": "Klantnaam",
+        "report_date": "Rapportdatum",
+
+        "monthly_orders": "Maandelijkse bestellingen",
+        "avg_items_per_order": "Gemiddeld aantal artikelen per bestelling",
+        "avg_volume_m3_per_item": "Gemiddeld volume per artikel (m³)",
+        "avg_storage_days": "Gemiddeld aantal opslagdagen",
+        "inventory_coverage_days": "Voorraaddekking in dagen",
+        "return_rate": "Retourpercentage",
+        "avg_order_value": "Gemiddelde bestelwaarde (€)",
+
+        "share_ge_20": "Aandeel bestellingen >= €20",
+        "share_lt_20": "Aandeel bestellingen < €20",
+
+        "size_xs_share": "XS-aandeel",
+        "size_s_share": "S-aandeel",
+        "size_m_share": "M-aandeel",
+        "size_l_share": "L-aandeel",
+
+        "fbt_storage_cost": "FBT opslagkosten / m³ / dag",
+        "buyer_shipping_domestic": "Verzendkosten koper (binnenland)",
+        "buyer_shipping_intra": "Verzendkosten koper (Intra-EU)",
+
+        "current_storage_cost": "Huidige opslagkosten / m³ / dag",
+        "current_fulfillment_per_order": "Huidige fulfillmentkosten / bestelling",
+        "current_return_processing": "Huidige retourverwerkingskosten / bestelling",
+        "current_inventory_handling_monthly": "Huidige voorraadbehandelingskosten per maand",
+        "current_stock_loss_monthly": "Huidig voorraadverlies / schade per maand",
+        "current_manpower_monthly": "Huidige personeelskosten magazijn per maand",
+        "current_other_fixed_monthly": "Overige vaste kosten per maand",
+
+        "warehouse_country": "Magazijnland",
+        "domestic_share": "Aandeel binnenland",
+        "intra_eu_share": "Aandeel Intra-EU",
+
+        "decision": "Aanbeveling",
+        "recommend_fbt": "✅ FBT aanbevolen",
+        "not_recommend_fbt": "❌ Momenteel niet aanbevolen",
+
+        "a_cost": "FBT-kosten verkoperszijde",
+        "b_cost": "Kosten huidige oplossing",
+        "c_savings": "Besparing verkoperszijde",
+        "savings_rate": "Besparingspercentage",
+        "per_order_saving": "Besparing per bestelling",
+        "free_shipping_orders": "Bestellingen met gratis verzending (>=€20)",
+        "buyer_shipping_saved": "Bespaarde verzendwaarde aan koperszijde",
+
+        "monthly_revenue": "Maandelijkse omzet",
+        "fbt_profit": "FBT-winst",
+        "current_profit": "Huidige winst",
+        "profit_uplift": "Winstverbetering (alleen kostenbesparing)",
+
+        "fbt_breakdown": "FBT-kostenopbouw",
+        "current_breakdown": "Kostenopbouw huidige oplossing",
+
+        "chart1": "Kostencurve",
+        "chart2": "Vergelijking totale kosten",
+        "chart3": "Kostenopbouw",
+
+        "line_fbt": "FBT",
+        "line_current": "Huidig",
+        "line_savings": "Besparing",
+
+        "x_orders": "Maandelijkse bestellingen",
+        "y_eur": "EUR",
+
+        "storage": "Opslag",
+        "fulfillment": "Fulfillment",
+        "returns": "Retouren",
+        "handling": "Voorraadbehandeling",
+        "stock_loss": "Voorraadverlies / schade",
+        "manpower": "Personeel",
+        "other_fixed": "Overige vaste kosten",
+
+        "sales_insight": "Sales-inzicht",
+        "executive_summary": "Managementsamenvatting",
+        "annual_impact": "Jaarlijks effect",
+        "breakeven_found": "Break-even bij ongeveer {orders} bestellingen per maand",
+        "breakeven_not_found": "Geen break-even gevonden binnen het huidige orderbereik",
+
+        "section_results": "Resultaten",
+        "section_profit": "Winstvergelijking",
+        "section_breakdown": "Kostenopbouw",
+        "section_assumptions": "Genormaliseerde aandelen",
+        "download_csv": "Download resultaten als CSV",
+        "download_pdf": "Download PDF-rapport",
+
+        "note_input": "Opmerking",
+        "note_input_text": "Aandelen hoeven niet op te tellen tot 1,0. De simulator normaliseert ze automatisch.",
+        "profit_note": "De winstverbetering weerspiegelt alleen kostenreductie. Er wordt geen GMV- of conversie-uplift aangenomen.",
+
+        "placeholder": "Vul hierboven de invoer in en klik op Berekenen.",
+        "domestic_norm": "Aandeel binnenland (genormaliseerd)",
+        "intra_norm": "Aandeel Intra-EU (genormaliseerd)",
+        "ge20_norm": "Aandeel >= €20 (genormaliseerd)",
+        "lt20_norm": "Aandeel < €20 (genormaliseerd)",
+        "xs_norm": "XS-aandeel (genormaliseerd)",
+        "s_norm": "S-aandeel (genormaliseerd)",
+        "m_norm": "M-aandeel (genormaliseerd)",
+        "l_norm": "L-aandeel (genormaliseerd)",
+
+        "pdf_title": "FBT Voordelen Simulatierapport",
+        "pdf_subtitle": "Gegenereerd door de Streamlit-simulator",
+        "pdf_inputs": "Samenvatting invoer",
+        "pdf_outputs": "Samenvatting resultaten",
+        "pdf_notes": "Opmerkingen",
+        "pdf_cover_for": "Opgesteld voor",
+        "pdf_cover_date": "Rapportdatum",
+        "pdf_conclusion": "Conclusie",
+        "pdf_exec_summary": "Managementsamenvatting",
+        "default_client_name": "Klant",
+    },
 }
+
 
 # =========================================================
 # 2. RATE CARD
@@ -405,6 +530,7 @@ RATE_CARD = {
     },
 }
 
+
 # =========================================================
 # 3. HELPERS
 # =========================================================
@@ -414,6 +540,7 @@ def normalize_shares(values):
     if total <= 0:
         return [0 for _ in values]
     return [max(0, v) / total for v in values]
+
 
 def weighted_fbt_fulfillment_per_order(warehouse, domestic_share, intra_share, xs, s, m, l):
     xs, s, m, l = normalize_shares([xs, s, m, l])
@@ -434,6 +561,7 @@ def weighted_fbt_fulfillment_per_order(warehouse, domestic_share, intra_share, x
     domestic_share, intra_share = normalize_shares([domestic_share, intra_share])
     weighted = domestic_share * dom_rate + intra_share * intra_rate
     return weighted, dom_rate, intra_rate
+
 
 def calculate_fbt_cost(
     monthly_orders,
@@ -496,6 +624,7 @@ def calculate_fbt_cost(
     }
     return seller_total, breakdown, extra
 
+
 def calculate_current_cost(
     monthly_orders,
     avg_items_per_order,
@@ -541,14 +670,18 @@ def calculate_current_cost(
     }
     return total, breakdown
 
+
 def format_eur(x):
     return f"€ {x:,.2f}"
+
 
 def build_results_dataframe(metrics_dict):
     return pd.DataFrame([{"Metric": k, "Value": v} for k, v in metrics_dict.items()])
 
+
 def df_to_csv_bytes(df):
     return df.to_csv(index=False).encode("utf-8-sig")
+
 
 def make_cost_curve_figure(lang, order_range, fbt_curve, cur_curve, mo):
     fig, ax = plt.subplots(figsize=(8, 3.8))
@@ -569,6 +702,7 @@ def make_cost_curve_figure(lang, order_range, fbt_curve, cur_curve, mo):
     ax.grid(alpha=0.3)
     fig.tight_layout()
     return fig
+
 
 def make_total_comparison_figure(lang, fbt_total, current_total, savings):
     fig, ax = plt.subplots(figsize=(7, 4.6))
@@ -599,6 +733,7 @@ def make_total_comparison_figure(lang, fbt_total, current_total, savings):
     fig.tight_layout()
     return fig
 
+
 def make_breakdown_figure(lang, fbt_breakdown, current_breakdown):
     all_keys = list(dict.fromkeys(list(fbt_breakdown.keys()) + list(current_breakdown.keys())))
     f_vals = [fbt_breakdown.get(k, 0) for k in all_keys]
@@ -620,12 +755,14 @@ def make_breakdown_figure(lang, fbt_breakdown, current_breakdown):
     fig.tight_layout()
     return fig
 
+
 def wrap_and_draw(fig, x, y, text, width=90, fontsize=10, line_height=0.018):
     lines = textwrap.wrap(text, width=width) or [text]
     for line in lines:
         fig.text(x, y, line, fontsize=fontsize)
         y -= line_height
     return y
+
 
 def create_pdf_report(
     lang,
@@ -693,8 +830,9 @@ def create_pdf_report(
     buffer.seek(0)
     return buffer.getvalue()
 
-def build_executive_summary(lang_key, lang, savings, per_order, annual_impact, verdict, buyer_shipping_saved):
-    if lang_key == "zh":
+
+def build_executive_summary(lang_choice, savings, per_order, annual_impact, verdict, buyer_shipping_saved):
+    if lang_choice == "zh":
         return (
             f"基于当前输入假设，结论为：{verdict}。"
             f"在不假设任何 GMV 提升的前提下，FBT 预计可为卖家每月节省 {format_eur(savings)} 的运营成本，"
@@ -702,13 +840,21 @@ def build_executive_summary(lang_key, lang, savings, per_order, annual_impact, v
             f"与此同时，买家侧包邮相关运费价值约为 {format_eur(buyer_shipping_saved)}。"
             f"因此，本报告中的利润提升仅来源于成本下降，而非收入增长。"
         )
-    if lang_key == "de":
+    if lang_choice == "de":
         return (
             f"Auf Basis der aktuellen Annahmen lautet die Empfehlung: {verdict}. "
             f"Ohne Annahme eines GMV-Uplifts kann FBT die monatlichen Verkäuferkosten voraussichtlich um {format_eur(savings)} senken. "
             f"Das entspricht {format_eur(per_order)} pro Bestellung bzw. {format_eur(annual_impact)} auf Jahresbasis. "
             f"Zusätzlich beträgt der eingesparte Versandwert auf Käuferseite etwa {format_eur(buyer_shipping_saved)}. "
             f"Die Gewinnsteigerung in diesem Bericht basiert ausschließlich auf Kostensenkung, nicht auf Umsatzwachstum."
+        )
+    if lang_choice == "nl":
+        return (
+            f"Op basis van de huidige aannames luidt de aanbeveling: {verdict}. "
+            f"Zonder enige aanname van GMV-uplift kan FBT de maandelijkse kosten aan verkoperszijde naar verwachting verlagen met {format_eur(savings)}. "
+            f"Dat komt neer op {format_eur(per_order)} per bestelling en {format_eur(annual_impact)} op jaarbasis. "
+            f"Daarnaast bedraagt de bespaarde verzendwaarde aan koperszijde ongeveer {format_eur(buyer_shipping_saved)}. "
+            f"De winstverbetering in dit rapport is dus uitsluitend gebaseerd op kostenbesparing en niet op omzetgroei."
         )
     return (
         f"Based on the current assumptions, the conclusion is: {verdict}. "
@@ -717,6 +863,7 @@ def build_executive_summary(lang_key, lang, savings, per_order, annual_impact, v
         f"In addition, the buyer-side shipping value saved is estimated at {format_eur(buyer_shipping_saved)}. "
         f"Therefore, the profit improvement in this report comes purely from cost savings rather than revenue uplift."
     )
+
 
 # =========================================================
 # 4. PAGE CONFIG
@@ -728,10 +875,10 @@ if "reset_counter" not in st.session_state:
     st.session_state.reset_counter = 0
 
 lang_choice = st.selectbox(
-    "Language / Sprache / 语言",
-    options=["en", "de", "zh"],
+    "Language / Sprache / Taal / 语言",
+    options=["en", "de", "nl", "zh"],
     index=0,
-    format_func=lambda x: {"en": "English", "de": "Deutsch", "zh": "中文"}[x],
+    format_func=lambda x: {"en": "English", "de": "Deutsch", "nl": "Nederlands", "zh": "中文"}[x],
     key=f"language_{st.session_state.reset_counter}",
 )
 
@@ -740,6 +887,7 @@ lang = LANG[lang_choice]
 st.title(lang["title"])
 st.caption(lang["subtitle"])
 st.info(f"**{lang['note_input']}**：{lang['note_input_text']}")
+
 
 # =========================================================
 # 5. CENTERED INPUTS
@@ -820,6 +968,7 @@ if reset_clicked:
 if not calculate_clicked:
     st.info(lang["placeholder"])
 
+
 # =========================================================
 # 6. CALCULATION
 # =========================================================
@@ -885,7 +1034,7 @@ if calculate_clicked:
     color = "green" if savings > 0 else "red"
 
     executive_summary = build_executive_summary(
-        lang_choice, lang, savings, per_order, annual_impact, verdict, fbt_extra["buyer_shipping_saved"]
+        lang_choice, savings, per_order, annual_impact, verdict, fbt_extra["buyer_shipping_saved"]
     )
 
     st.markdown("---")
