@@ -1,15 +1,7 @@
 # -*- coding: utf-8 -*-
-# FBT Inventory + Fulfillment Benefit Simulator - Streamlit V5
+# FBT Inventory + Fulfillment Benefit Simulator - Streamlit V6
+# Centered input layout version
 # ------------------------------------------------------------
-# Features
-# 1) CN / EN switch
-# 2) Sidebar input layout
-# 3) Decision / KPI / Profit / Insight
-# 4) Break-even estimation
-# 5) 3 charts
-# 6) CSV export
-# 7) Formal PDF export with cover page + summary page
-# 8) Profit uplift only reflects cost savings (NO GMV uplift assumption)
 
 import io
 import textwrap
@@ -33,7 +25,7 @@ LANG = {
         "fbt_inputs": "2. FBT Inputs",
         "current_inputs": "3. Current Solution Inputs",
         "business_inputs": "4. Business Inputs",
-        "report_inputs": "5. Report Inputs",
+        "report_inputs": "Report Inputs",
         "calculate": "Calculate",
         "reset": "Reset",
 
@@ -128,7 +120,7 @@ LANG = {
         "note_input_text": "Shares do not need to sum to 1.0. The simulator will normalize them automatically.",
         "profit_note": "Profit uplift here only reflects cost reduction. No GMV uplift or conversion uplift is assumed.",
 
-        "placeholder": "Enter inputs on the left and click Calculate.",
+        "placeholder": "Fill in the inputs above and click Calculate.",
         "domestic_norm": "Domestic share (normalized)",
         "intra_norm": "Intra-EU share (normalized)",
         "ge20_norm": ">= €20 share (normalized)",
@@ -156,7 +148,7 @@ LANG = {
         "fbt_inputs": "2. FBT 输入",
         "current_inputs": "3. 客户当前方案输入",
         "business_inputs": "4. 业务输入",
-        "report_inputs": "5. 报告输入",
+        "report_inputs": "报告信息",
         "calculate": "开始计算",
         "reset": "重置",
 
@@ -251,7 +243,7 @@ LANG = {
         "note_input_text": "各类 share 不必手动加总为 1.0，系统会自动归一化。",
         "profit_note": "这里的利润提升只反映成本下降带来的改善，不假设任何 GMV 或转化率提升。",
 
-        "placeholder": "请在左侧输入参数后点击开始计算。",
+        "placeholder": "请在上方填写参数后点击开始计算。",
         "domestic_norm": "Domestic 占比（归一化）",
         "intra_norm": "Intra-EU 占比（归一化）",
         "ge20_norm": ">= €20 占比（归一化）",
@@ -271,7 +263,7 @@ LANG = {
         "pdf_conclusion": "结论",
         "pdf_exec_summary": "管理摘要",
         "default_client_name": "客户",
-    }
+    },
 }
 
 # =========================================================
@@ -304,21 +296,18 @@ def normalize_shares(values):
 
 def weighted_fbt_fulfillment_per_order(warehouse, domestic_share, intra_share, xs, s, m, l):
     xs, s, m, l = normalize_shares([xs, s, m, l])
-
     dom_rate = (
         xs * RATE_CARD[warehouse]["domestic"]["XS"]
         + s * RATE_CARD[warehouse]["domestic"]["S"]
         + m * RATE_CARD[warehouse]["domestic"]["M"]
         + l * RATE_CARD[warehouse]["domestic"]["L"]
     )
-
     intra_rate = (
         xs * RATE_CARD[warehouse]["intra_eu"]["XS"]
         + s * RATE_CARD[warehouse]["intra_eu"]["S"]
         + m * RATE_CARD[warehouse]["intra_eu"]["M"]
         + l * RATE_CARD[warehouse]["intra_eu"]["L"]
     )
-
     domestic_share, intra_share = normalize_shares([domestic_share, intra_share])
     weighted = domestic_share * dom_rate + intra_share * intra_rate
     return weighted, dom_rate, intra_rate
@@ -383,7 +372,6 @@ def calculate_fbt_cost(
         "lt20_share_norm": lt20_share_n,
         "xs_s_m_l_norm": normalize_shares([xs_share, s_share, m_share, l_share]),
     }
-
     return seller_total, breakdown, extra
 
 
@@ -528,7 +516,6 @@ def create_pdf_report(
     buffer = io.BytesIO()
 
     with PdfPages(buffer) as pdf:
-        # Cover page
         fig = plt.figure(figsize=(8.27, 11.69))
         fig.patch.set_facecolor("white")
         fig.text(0.08, 0.88, lang["pdf_title"], fontsize=22, fontweight="bold")
@@ -540,7 +527,6 @@ def create_pdf_report(
         pdf.savefig(fig, bbox_inches="tight")
         plt.close(fig)
 
-        # Executive summary page
         fig = plt.figure(figsize=(8.27, 11.69))
         fig.patch.set_facecolor("white")
         y = 0.94
@@ -555,7 +541,6 @@ def create_pdf_report(
         pdf.savefig(fig, bbox_inches="tight")
         plt.close(fig)
 
-        # Inputs / outputs / notes
         fig = plt.figure(figsize=(8.27, 11.69))
         fig.patch.set_facecolor("white")
         y = 0.95
@@ -608,41 +593,44 @@ st.set_page_config(page_title="FBT Simulator", layout="wide")
 if "reset_counter" not in st.session_state:
     st.session_state.reset_counter = 0
 
-# =========================================================
-# 5. SIDEBAR
-# =========================================================
+lang_choice = st.selectbox(
+    "Language / 语言",
+    options=["en", "zh"],
+    format_func=lambda x: "English" if x == "en" else "中文",
+    key=f"language_{st.session_state.reset_counter}",
+)
 
-with st.sidebar:
-    language = st.selectbox(
-        "Language / 语言",
-        options=["en", "zh"],
-        format_func=lambda x: "English" if x == "en" else "中文",
-        key=f"language_{st.session_state.reset_counter}",
-    )
-
-lang = LANG[language]
+lang = LANG[lang_choice]
 
 st.title(lang["title"])
 st.caption(lang["subtitle"])
+st.info(f"**{lang['note_input']}**：{lang['note_input_text']}")
 
-with st.sidebar:
-    st.info(f"**{lang['note_input']}**\n\n{lang['note_input_text']}")
+# =========================================================
+# 5. CENTERED INPUTS
+# =========================================================
 
-    st.markdown("---")
-    st.subheader(lang["report_inputs"])
+st.markdown(f"### {lang['report_inputs']}")
+r1, r2 = st.columns(2)
+with r1:
     client_name = st.text_input(
         lang["client_name"],
         value=lang["default_client_name"],
         key=f"client_name_{st.session_state.reset_counter}",
     )
+with r2:
     report_date_value = st.date_input(
         lang["report_date"],
         value=date.today(),
         key=f"report_date_{st.session_state.reset_counter}",
     )
 
-    st.markdown("---")
-    st.subheader(lang["basic_inputs"])
+st.markdown("---")
+
+c1, c2, c3, c4 = st.columns(4)
+
+with c1:
+    st.markdown(f"### {lang['basic_inputs']}")
     warehouse = st.selectbox(lang["warehouse_country"], ["DE", "ES"], key=f"warehouse_{st.session_state.reset_counter}")
     monthly_orders = st.number_input(lang["monthly_orders"], min_value=0, value=3000, step=100, key=f"monthly_orders_{st.session_state.reset_counter}")
     avg_items_per_order = st.number_input(lang["avg_items_per_order"], min_value=0.0, value=1.0, step=0.1, format="%.2f", key=f"avg_items_per_order_{st.session_state.reset_counter}")
@@ -651,8 +639,8 @@ with st.sidebar:
     inventory_coverage_days = st.number_input(lang["inventory_coverage_days"], min_value=0, value=30, step=1, key=f"inventory_coverage_days_{st.session_state.reset_counter}")
     return_rate = st.number_input(lang["return_rate"], min_value=0.0, value=0.05, step=0.01, format="%.4f", key=f"return_rate_{st.session_state.reset_counter}")
 
-    st.markdown("---")
-    st.subheader(lang["business_inputs"])
+with c2:
+    st.markdown(f"### {lang['business_inputs']}")
     avg_order_value = st.number_input(lang["avg_order_value"], min_value=0.0, value=30.0, step=1.0, format="%.2f", key=f"aov_{st.session_state.reset_counter}")
     domestic_share = st.number_input(lang["domestic_share"], min_value=0.0, value=0.6, step=0.05, format="%.4f", key=f"domestic_share_{st.session_state.reset_counter}")
     intra_eu_share = st.number_input(lang["intra_eu_share"], min_value=0.0, value=0.4, step=0.05, format="%.4f", key=f"intra_eu_share_{st.session_state.reset_counter}")
@@ -663,8 +651,8 @@ with st.sidebar:
     size_m_share = st.number_input(lang["size_m_share"], min_value=0.0, value=0.25, step=0.05, format="%.4f", key=f"size_m_share_{st.session_state.reset_counter}")
     size_l_share = st.number_input(lang["size_l_share"], min_value=0.0, value=0.25, step=0.05, format="%.4f", key=f"size_l_share_{st.session_state.reset_counter}")
 
-    st.markdown("---")
-    st.subheader(lang["fbt_inputs"])
+with c3:
+    st.markdown(f"### {lang['fbt_inputs']}")
     st.number_input(
         lang["fbt_storage_cost"],
         value=float(RATE_CARD[warehouse]["storage_per_m3_per_day"]),
@@ -674,8 +662,8 @@ with st.sidebar:
     buyer_shipping_domestic = st.number_input(lang["buyer_shipping_domestic"], min_value=0.0, value=4.99, step=0.1, format="%.2f", key=f"buyer_shipping_domestic_{st.session_state.reset_counter}")
     buyer_shipping_intra = st.number_input(lang["buyer_shipping_intra"], min_value=0.0, value=4.99, step=0.1, format="%.2f", key=f"buyer_shipping_intra_{st.session_state.reset_counter}")
 
-    st.markdown("---")
-    st.subheader(lang["current_inputs"])
+with c4:
+    st.markdown(f"### {lang['current_inputs']}")
     current_storage_cost = st.number_input(lang["current_storage_cost"], min_value=0.0, value=1.10, step=0.1, format="%.2f", key=f"current_storage_cost_{st.session_state.reset_counter}")
     current_fulfillment_per_order = st.number_input(lang["current_fulfillment_per_order"], min_value=0.0, value=2.20, step=0.1, format="%.2f", key=f"current_fulfillment_per_order_{st.session_state.reset_counter}")
     current_return_processing = st.number_input(lang["current_return_processing"], min_value=0.0, value=2.20, step=0.1, format="%.2f", key=f"current_return_processing_{st.session_state.reset_counter}")
@@ -684,8 +672,10 @@ with st.sidebar:
     current_manpower_monthly = st.number_input(lang["current_manpower_monthly"], min_value=0.0, value=1500.0, step=100.0, format="%.2f", key=f"current_manpower_monthly_{st.session_state.reset_counter}")
     current_other_fixed_monthly = st.number_input(lang["current_other_fixed_monthly"], min_value=0.0, value=300.0, step=50.0, format="%.2f", key=f"current_other_fixed_monthly_{st.session_state.reset_counter}")
 
-    st.markdown("---")
+b1, b2, _ = st.columns([1, 1, 4])
+with b1:
     calculate_clicked = st.button(lang["calculate"], use_container_width=True)
+with b2:
     reset_clicked = st.button(lang["reset"], use_container_width=True)
 
 if reset_clicked:
