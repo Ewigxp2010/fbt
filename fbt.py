@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# FBT Inventory + Fulfillment Benefit Simulator - Streamlit V6
-# Centered input layout version
+# FBT Inventory + Fulfillment Benefit Simulator - Streamlit V7
+# Centered input layout + improved chart sizing / spacing
 # ------------------------------------------------------------
 
 import io
@@ -296,6 +296,7 @@ def normalize_shares(values):
 
 def weighted_fbt_fulfillment_per_order(warehouse, domestic_share, intra_share, xs, s, m, l):
     xs, s, m, l = normalize_shares([xs, s, m, l])
+
     dom_rate = (
         xs * RATE_CARD[warehouse]["domestic"]["XS"]
         + s * RATE_CARD[warehouse]["domestic"]["S"]
@@ -308,6 +309,7 @@ def weighted_fbt_fulfillment_per_order(warehouse, domestic_share, intra_share, x
         + m * RATE_CARD[warehouse]["intra_eu"]["M"]
         + l * RATE_CARD[warehouse]["intra_eu"]["L"]
     )
+
     domestic_share, intra_share = normalize_shares([domestic_share, intra_share])
     weighted = domestic_share * dom_rate + intra_share * intra_rate
     return weighted, dom_rate, intra_rate
@@ -434,41 +436,54 @@ def df_to_csv_bytes(df):
 
 
 def make_cost_curve_figure(lang, order_range, fbt_curve, cur_curve, mo):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(order_range, fbt_curve, linewidth=3, label=lang["line_fbt"])
-    ax.plot(order_range, cur_curve, linewidth=3, label=lang["line_current"])
+    fig, ax = plt.subplots(figsize=(8, 3.8))
+    ax.plot(order_range, fbt_curve, linewidth=2.5, label=lang["line_fbt"])
+    ax.plot(order_range, cur_curve, linewidth=2.5, label=lang["line_current"])
+
     lower = np.minimum(fbt_curve, cur_curve)
     upper = np.maximum(fbt_curve, cur_curve)
-    ax.fill_between(order_range, lower, upper, alpha=0.18)
+    ax.fill_between(order_range, lower, upper, alpha=0.15)
+
     if mo > 0:
         ax.axvline(mo, linestyle="--", alpha=0.5)
+
     ax.set_xlabel(lang["x_orders"])
     ax.set_ylabel(lang["y_eur"])
-    ax.set_title(lang["chart1"])
+    ax.set_title(lang["chart1"], pad=10)
     ax.legend()
     ax.grid(alpha=0.3)
+    fig.tight_layout()
     return fig
 
 
 def make_total_comparison_figure(lang, fbt_total, current_total, savings):
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(7, 4.6))
     labels = [lang["line_fbt"], lang["line_current"], lang["line_savings"]]
     values = [fbt_total, current_total, savings]
     bars = ax.bar(labels, values)
-    ax.set_ylabel(lang["y_eur"])
-    ax.set_title(lang["chart2"])
-    ax.grid(axis="y", alpha=0.3)
 
     ymax = max(values) if values else 0
     ymin = min(values) if values else 0
-    offset = max(abs(ymax), abs(ymin), 1) * 0.03
+    chart_range = max(abs(ymax), abs(ymin), 1)
 
+    # 给顶部足够留白，避免文字和标题重叠
+    upper_lim = ymax + chart_range * 0.18
+    lower_lim = ymin - chart_range * 0.12 if ymin < 0 else 0
+    ax.set_ylim(lower_lim, upper_lim)
+
+    ax.set_ylabel(lang["y_eur"])
+    ax.set_title(lang["chart2"], pad=12)
+    ax.grid(axis="y", alpha=0.3)
+
+    offset = chart_range * 0.05
     for bar, val in zip(bars, values):
         x = bar.get_x() + bar.get_width() / 2
         if val >= 0:
-            ax.text(x, val + offset, f"€ {val:,.0f}", ha="center", va="bottom")
+            ax.text(x, val + offset, f"€ {val:,.0f}", ha="center", va="bottom", fontsize=10)
         else:
-            ax.text(x, val - offset, f"€ {val:,.0f}", ha="center", va="top")
+            ax.text(x, val - offset, f"€ {val:,.0f}", ha="center", va="top", fontsize=10)
+
+    fig.tight_layout()
     return fig
 
 
@@ -478,17 +493,19 @@ def make_breakdown_figure(lang, fbt_breakdown, current_breakdown):
     c_vals = [current_breakdown.get(k, 0) for k in all_keys]
 
     x = np.arange(len(all_keys))
-    width = 0.38
+    width = 0.36
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(8.5, 4.8))
     ax.bar(x - width / 2, f_vals, width, label=lang["line_fbt"])
     ax.bar(x + width / 2, c_vals, width, label=lang["line_current"])
+
     ax.set_xticks(x)
-    ax.set_xticklabels(all_keys, rotation=30, ha="right")
+    ax.set_xticklabels(all_keys, rotation=25, ha="right")
     ax.set_ylabel(lang["y_eur"])
-    ax.set_title(lang["chart3"])
+    ax.set_title(lang["chart3"], pad=10)
     ax.legend()
     ax.grid(axis="y", alpha=0.3)
+    fig.tight_layout()
     return fig
 
 
@@ -911,13 +928,13 @@ if calculate_clicked:
         st.warning(lang["breakeven_not_found"])
 
     fig1 = make_cost_curve_figure(lang, order_range, fbt_curve, cur_curve, mo)
-    st.pyplot(fig1)
+    st.pyplot(fig1, use_container_width=True)
 
     fig2 = make_total_comparison_figure(lang, fbt_total, current_total, savings)
-    st.pyplot(fig2)
+    st.pyplot(fig2, use_container_width=True)
 
     fig3 = make_breakdown_figure(lang, fbt_breakdown, current_breakdown)
-    st.pyplot(fig3)
+    st.pyplot(fig3, use_container_width=True)
 
     export_metrics = {
         lang["a_cost"]: round(fbt_total, 2),
